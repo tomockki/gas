@@ -1,0 +1,45 @@
+const ss = SpreadsheetApp.getActiveSpreadsheet();
+const sheet = ss.getSheetByName("");
+let lastRow = sheet.getRange(1,6).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow();
+const folderId= ""; //移動先フォルダID
+const folder = DriveApp.getFolderById(folderId);
+
+function removeFolder() {
+  let button = Browser.msgBox("本当に移動しますか？",Browser.Buttons.OK_CANCEL);
+  let dataArrey = sheet.getRange(3,6,lastRow-2,1).getFormulas();
+  let checkData = sheet.getRange(3,5,lastRow-2,1).getValues();
+  let checkCheck = [];
+
+  for(let x = 0; x < checkData.length; x++){
+    if(checkData[x].indexOf(true)!= -1){
+      checkCheck.push("とぅるー");
+    }
+  }
+
+  if(button=="ok"&& checkCheck.length != 0){
+    for(let i =0; i < checkData.length; i++){
+
+      if(checkData[i][0] == true){
+        var splitData = dataArrey[i][0].split('"');
+        var splitUrl = splitData[1].split('/');
+        var remove = DriveApp.getFolderById(splitUrl[splitUrl.length-1]);
+        remove.moveTo(folder);
+        sheet.getRange(i+3,6).clearContent();
+        sheet.getRange(i+3,5).removeCheckboxes();
+      }
+    }
+    let inputData = sheet.getRange(3,6,lastRow-2,1).getFormulas();
+    let input = [];
+    for(let x = 0; x < inputData.length; x++){
+      if(inputData[x][0] != ""){
+        input.push([inputData[x][0]]);
+      }
+    }
+    sheet.getRange(3,6,dataArrey.length,1).clearContent();
+    sheet.getRange(3,5,checkData.length,1).removeCheckboxes();
+    sheet.getRange(3,6,input.length,1).setValues(input);
+    sheet.getRange(3,5,input.length,1).insertCheckboxes();
+  }else{
+    Browser.msgBox("チェックしてませんね？僕にはわかりますよ");
+  }
+}
