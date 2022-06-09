@@ -1,0 +1,86 @@
+function onOpen(){
+
+  let menu=[
+    {name: "顧客＆案件更新", functionName: "allFolder"}
+  ];
+  SpreadsheetApp.getActiveSpreadsheet().addMenu("更新コマンド",menu); //メニューを追加
+
+}
+
+function allFolder(){
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheetName = ss.getSheetByName('');
+  let lastRow = sheetName.getLastRow();
+  let rangeList = sheetName.getRange(3,2,lastRow,5);
+
+  let folder_id = "";
+  let folder_id_R = "";
+  let folder_id_A = "";
+  let folder_id_O = "";
+
+  let url = 'https://drive.google.com/drive/folders/' + folder_id;
+  let urlR = 'https://drive.google.com/drive/folders/' + folder_id_R;
+  let urlA = 'https://drive.google.com/drive/folders/' + folder_id_A;
+  let urlO = 'https://drive.google.com/drive/folders/' + folder_id_O;
+
+  let paths = url.split('/');
+  let pathsR = urlR.split('/');
+  let pathsA = urlA.split('/');
+  let pathsO = urlO.split('/'); 
+
+  let folderId = paths[paths.length - 1];
+  let folderIdR = pathsR[pathsR.length - 1];
+  let folderIdA = pathsA[pathsA.length - 1];
+  let folderIdO = pathsO[pathsO.length - 1];
+
+  let folder = DriveApp.getFolderById(folderId);
+  let folderR = DriveApp.getFolderById(folderIdR);
+  let folderA = DriveApp.getFolderById(folderIdA);
+  let folderO = DriveApp.getFolderById(folderIdO);
+
+  let childFolders = folder.getFolders();
+  let childFoldersR = folderR.getFolders();
+  let childFoldersA = folderA.getFolders();
+  let childFoldersO = folderO.getFolders();
+
+  let list = [];
+  let listR = [];
+  let listA = [];
+  let listO = [];
+  
+  // 初期化処理
+  rangeList.clearContent();
+
+  while(childFolders.hasNext()) {  
+    var buff = childFolders.next();
+    list.push([buff.getName(), buff.getUrl()]);
+  };
+  while(childFoldersR.hasNext()) {  
+    var buff = childFoldersR.next();
+    listR.push([buff.getName(), buff.getUrl()]);
+  };
+  while(childFoldersA.hasNext()) {  
+    var buff = childFoldersA.next();
+    listA.push([buff.getName(), buff.getUrl()]);
+  };
+  while(childFoldersO.hasNext()) {  
+    var buff = childFoldersO.next();
+    listO.push([buff.getName(), buff.getUrl()]);
+  };
+
+  // 対象の範囲にまとめて書き出します
+  for(var i=0; i<list.length; i++){
+    sheetName.getRange(i+3,6).setFormula('=HYPERLINK("'+list[i][1]+'", "'+list[i][0]+'" )');
+  }
+  sheetName.getRange(3,5,list.length,1).insertCheckboxes();
+  for(var i=0; i<listR.length; i++){
+    sheetName.getRange(i+3,2).setFormula('=HYPERLINK("'+listR[i][1]+'", "'+listR[i][0]+'" )');
+  }
+  for(var i=0; i<listA.length; i++){
+    sheetName.getRange(i+3,3).setFormula('=HYPERLINK("'+listA[i][1]+'", "'+listA[i][0]+'" )');
+  }
+  for(var i=0; i<listO.length; i++){
+    sheetName.getRange(i+3,4).setFormula('=HYPERLINK("'+listO[i][1]+'", "'+listO[i][0]+'" )');
+  }
+  
+}
